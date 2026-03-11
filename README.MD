@@ -44,7 +44,16 @@ The CI/CD pipeline handles everything:
 3. **Registry**: Images are pushed to Azure Container Registry
 4. **Deploy**: Kubernetes manifests from `/k8s/` are applied to AKS
 
-You’ll find your Kubernetes configuration in the `/k8s/` directory, which allows full control over deployments, services, ingress, and other resources.
+You'll find your Kubernetes configuration in the `/k8s/` directory, which allows full control over deployments, services, ingress, and other resources.
+
+## ☸️ Ingress & TLS
+
+The cluster uses the **HAProxy Ingress Controller** (`ingressClassName: haproxy`). The ingress manifest under `/k8s/ingress.yml` is pre-configured with the appropriate HAProxy annotations:
+
+- `haproxy.org/ssl-redirect: "true"` — enforces HTTPS for all traffic
+- `haproxy.org/path-rewrite` — rewrites paths matching `/api[/...]` by stripping the `/api` prefix before forwarding requests to the Node.js backend (e.g. `/api/users` becomes `/users`)
+
+TLS certificates are automatically issued and renewed via **cert-manager**. The required `letsencrypt` ClusterIssuer is **already pre-configured in the cluster** — you do not need to create or manage it yourself.
 
 ## 📊 Monitoring Deployments
 
@@ -60,9 +69,19 @@ Track deployment progress in the [Actions tab](../../actions):
 
 You can monitor running pods, logs, and services directly in the Azure portal or using `kubectl`, if needed. Cluster access is managed securely via GitHub secrets.
 
+## 📝 Difference from the likvid-bank Template
+
+This repository is a **generic AKS starterkit** template intended as a reusable starting point for any application team. It differs from the [likvid-bank template repository](https://github.com/try-meshstack/likvid-bank-aks-template) in the following ways:
+
+- **No ClusterIssuer manifest**: The likvid-bank template ships a `cluster-issuer.yml` for provisioning the cert-manager ClusterIssuer. This template omits it because the ClusterIssuer is already available in the shared AKS cluster.
+- **HAProxy Ingress**: This template targets the HAProxy Ingress Controller, whereas the likvid-bank template used Azure Web Application Routing (`webapprouting.kubernetes.azure.com`) with NGINX annotations.
+- **Generic branding**: The likvid-bank template is tailored to the likvid-bank demo application, while this template is designed to be forked and adapted for any project.
+
 ## 📚 Resources
 
 - [Azure Kubernetes Service Documentation](https://docs.microsoft.com/en-us/azure/aks/)
+- [HAProxy Kubernetes Ingress Controller](https://haproxy-ingress.github.io/)
+- [cert-manager Documentation](https://cert-manager.io/docs/)
 - [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [meshStack Documentation](https://docs.meshcloud.io/)
