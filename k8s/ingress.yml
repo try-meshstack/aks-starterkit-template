@@ -3,13 +3,13 @@ kind: Ingress
 metadata:
   name: app-ingress
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
     haproxy.org/ssl-redirect: "true"
-    haproxy.org/path-rewrite: "/api/?(.*)" "/\1"
+    haproxy.org/path-rewrite: /api/?(.*) /\1
 spec:
   ingressClassName: haproxy
   rules:
-    - host: ${DOMAIN_NAME}.likvid-k8s.msh.host
+    - host: ${DOMAIN_NAME}.try-meshstack.msh.host
       http:
         paths:
           - path: /api
@@ -28,5 +28,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - ${DOMAIN_NAME}.likvid-k8s.msh.host
-      secretName: letsencrypt
+        - ${DOMAIN_NAME}.try-meshstack.msh.host
+      secretName: app-tls-secret

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: nodejs
-          image: githubconnector.azurecr.io/${PROJECT_NAME}-backend:${IMAGE_TAG}
+          image: ${ACR_HOST}/${PROJECT_NAME}-backend:${IMAGE_TAG}
           resources:
             requests:
               memory: "48Mi"

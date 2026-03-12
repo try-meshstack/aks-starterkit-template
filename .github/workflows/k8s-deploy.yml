@@ -54,7 +54,7 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: githubconnector.azurecr.io/${{ env.REPO_NAME_LOWER }}-backend:${{ github.sha }}
+          tags: ${{ secrets.aks_container_registry_host }}/${{ env.REPO_NAME_LOWER }}-backend:${{ github.sha }}
 
       # 🔧 Build & push frontend (Angular)
       - name: Build and push frontend
@@ -62,7 +62,7 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: githubconnector.azurecr.io/${{ env.REPO_NAME_LOWER }}-frontend:${{ github.sha }}
+          tags: ${{ secrets.aks_container_registry_host }}/${{ env.REPO_NAME_LOWER }}-frontend:${{ github.sha }}
 
       - name: Deploy to AKS
         env:
@@ -70,6 +70,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
           PROJECT_NAME: ${{ env.REPO_NAME_LOWER }} # Use the lowercase repository name for deployment image tags
+          ACR_HOST: ${{ secrets.aks_container_registry_host }}
         run: |
           echo "$KUBECONFIG_CONTENT" > kubeconfig
           for file in k8s/*.yml; do
